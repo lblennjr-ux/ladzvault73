@@ -274,7 +274,7 @@ async function loadDashboard() {
     for(let i=4;i<=8;i++){
       const r=master[i];
       if(!r||!r[0]||r[0]==='Metal'||r[0]==='TOTAL PORTFOLIO')continue;
-      cats.push({cat:r[0],pieces:r[1]||'—',melt:r[3]||'—',retail:r[4]||'—'});
+      const meltVal=r[3]||'—'; const retailVal=r[4]?(!String(r[4]).startsWith('$')?'$'+r[4]:r[4]):'—'; const meltFmt=meltVal!=='—'&&!String(meltVal).startsWith('$')?'$'+meltVal:meltVal; cats.push({cat:r[0],pieces:r[1]||'—',melt:meltFmt,retail:retailVal});
     }
     document.getElementById('port-body').innerHTML=cats.map(c=>`<tr><td>${c.cat}</td><td>${c.pieces}</td><td class="mono">${c.melt}</td><td class="mono">${c.retail}</td></tr>`).join('')||'<tr><td colspan="4" class="loading">No data</td></tr>';
     const tot=master[9];
