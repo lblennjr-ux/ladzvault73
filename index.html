@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LadzVault73 Inventory</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; font-size: 14px; }
+.header { background: #0d0d0d; border-bottom: 2px solid #C9A84C; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.header h1 { font-size: 18px; color: #C9A84C; letter-spacing: 0.04em; font-weight: 600; }
+.header .sub { font-size: 11px; color: #888; margin-top: 2px; }
+.conn-dot { width: 8px; height: 8px; border-radius: 50%; background: #BA7517; display: inline-block; margin-right: 6px; }
+.conn-dot.ok { background: #639922; }
+.conn-dot.err { background: #E24B4A; }
+.conn-label { font-size: 12px; color: #888; }
+.nav { background: #161616; border-bottom: 1px solid #2a2a2a; padding: 0 20px; display: flex; gap: 4px; overflow-x: auto; }
+.nav button { font-size: 13px; padding: 12px 16px; border: none; background: transparent; color: #888; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+.nav button.active { color: #C9A84C; border-bottom-color: #C9A84C; }
+.nav button:hover { color: #ddd; }
+.content { padding: 20px; max-width: 1200px; margin: 0 auto; }
+.section { display: none; }
+.section.active { display: block; }
+.spot-bar { background: #161616; border: 1px solid #2a2a2a; border-radius: 8px; padding: 12px 16px; display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
+.spot-item .sl { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.08em; }
+.spot-item .sv { font-size: 16px; font-weight: 600; color: #C9A84C; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.metric { background: #161616; border: 1px solid #2a2a2a; border-radius: 8px; padding: 14px; }
+.metric .ml { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.metric .mv { font-size: 20px; font-weight: 600; color: #e8e8e0; }
+.card { background: #161616; border: 1px solid #2a2a2a; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; color: #e8e8e0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-size: 11px; color: #666; padding: 8px; border-bottom: 1px solid #2a2a2a; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+td { padding: 9px 8px; border-bottom: 1px solid #1e1e1e; color: #e8e8e0; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #1a1a1a; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+.bg { background: #3a2800; color: #C9A84C; }
+.bs { background: #1e2a1e; color: #8ab87a; }
+.bp { background: #1a2535; color: #6fa3d4; }
+.bpl { background: #251e3a; color: #9b8fd4; }
+.bsold { background: #1e2a1e; color: #639922; }
+.bgrade { background: #3a2800; color: #BA7517; }
+.bkeep { background: #222; color: #888; }
+.mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; }
+.pl-pos { color: #639922; }
+.pl-neg { color: #E24B4A; }
+input[type=text], input[type=number], select, textarea { width: 100%; font-size: 13px; padding: 8px 12px; border: 1px solid #2a2a2a; border-radius: 6px; background: #0d0d0d; color: #e8e8e0; margin-bottom: 10px; }
+input:focus, select:focus { outline: none; border-color: #C9A84C; }
+label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.btn { font-size: 13px; padding: 8px 18px; border-radius: 6px; border: 1px solid #2a2a2a; background: #1e1e1e; color: #e8e8e0; cursor: pointer; font-weight: 500; margin-right: 8px; margin-bottom: 8px; }
+.btn:hover { background: #2a2a2a; }
+.btn-gold { background: #3a2800; border-color: #C9A84C; color: #C9A84C; }
+.btn-gold:hover { background: #4a3400; }
+.btn-green { background: #1e2a1e; border-color: #639922; color: #8ab87a; }
+.filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.filter-bar input, .filter-bar select { width: auto; margin: 0; min-width: 160px; }
+.overflow { overflow-x: auto; }
+.loading { text-align: center; padding: 30px; color: #555; font-size: 13px; }
+.setup-step { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid #2a2a2a; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; background: #2a2a2a; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; color: #C9A84C; }
+.step-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #e8e8e0; }
+.step-desc { font-size: 13px; color: #888; line-height: 1.6; }
+code { font-family: 'SF Mono', monospace; font-size: 12px; background: #0d0d0d; padding: 2px 6px; border-radius: 4px; color: #C9A84C; }
+.status-ok { color: #639922; font-size: 13px; }
+.status-err { color: #E24B4A; font-size: 13px; }
+.sale-preview { font-family: monospace; font-size: 12px; background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 6px; padding: 12px; margin-top: 12px; line-height: 1.8; word-break: break-all; color: #C9A84C; }
+@media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .metrics { grid-template-columns: 1fr 1fr; } .content { padding: 12px; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>LadzVault73</h1>
+    <div class="sub">Precious Metals &amp; Currency Inventory</div>
+  </div>
+  <div style="display:flex;align-items:center">
+    <span class="conn-dot" id="dot"></span>
+    <span class="conn-label" id="conn-txt">Connecting...</span>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>
+  <button onclick="showTab('inventory',this)">Inventory</button>
+  <button onclick="showTab('notes',this)">Paper Money</button>
+  <button onclick="showTab('sales',this)">Sales Log</button>
+  <button onclick="showTab('logsale',this)">Log Sale</button>
+  <button onclick="showTab('setup',this)">Setup</button>
+</div>
+
+<div class="content">
+
+<!-- DASHBOARD -->
+<div id="tab-dashboard" class="section active">
+  <div class="spot-bar">
+    <div class="spot-item"><div class="sl">Gold/oz</div><div class="sv" id="sg">—</div></div>
+    <div class="spot-item"><div class="sl">Gold/g</div><div class="sv" id="sgg">—</div></div>
+    <div class="spot-item"><div class="sl">Silver/oz</div><div class="sv" id="ss">—</div></div>
+    <div class="spot-item"><div class="sl">Platinum/oz</div><div class="sv" id="spt">—</div></div>
+    <div class="spot-item"><div class="sl">Updated</div><div class="sv" id="su" style="font-size:12px;color:#888">—</div></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="ml">Total pieces</div><div class="mv" id="m1">—</div></div>
+    <div class="metric"><div class="ml">Est. retail</div><div class="mv" id="m2">—</div></div>
+    <div class="metric"><div class="ml">Melt value</div><div class="mv" id="m3">—</div></div>
+    <div class="metric"><div class="ml">Total P&amp;L</div><div class="mv" id="m4">—</div></div>
+    <div class="metric"><div class="ml">Items sold</div><div class="mv" id="m5">—</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Portfolio breakdown</div>
+    <table>
+      <thead><tr><th>Category</th><th>Pieces</th><th>Melt value</th><th>Est. retail</th></tr></thead>
+      <tbody id="port-body"><tr><td colspan="4" class="loading">Loading from Google Sheets...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- INVENTORY -->
+<div id="tab-inventory" class="section">
+  <div class="filter-bar">
+    <input type="text" id="srch" placeholder="Search inventory..." oninput="filterInv()">
+    <select id="fcat" onchange="filterInv()">
+      <option value="">All metals</option>
+      <option value="Gold">Gold</option>
+      <option value="Silver">Silver</option>
+      <option value="Platinum">Platinum</option>
+    </select>
+    <button class="btn btn-gold" onclick="loadAllInv()">Refresh</button>
+    <span id="inv-count" style="font-size:12px;color:#666"></span>
+  </div>
+  <div class="card overflow">
+    <table>
+      <thead><tr><th>#</th><th>Description</th><th>Brand</th><th>Wt</th><th>Qty</th><th>Melt ea</th><th>Retail ea</th><th>Cost</th><th>Status</th></tr></thead>
+      <tbody id="inv-body"><tr><td colspan="9" class="loading">Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAPER MONEY -->
+<div id="tab-notes" class="section">
+  <div class="card overflow">
+    <div class="card-title">Paper money inventory</div>
+    <table>
+      <thead><tr><th>Serial</th><th>Year</th><th>Description</th><th>Denom</th><th>Cost</th><th>Grade</th><th>Status</th></tr></thead>
+      <tbody id="notes-body"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SALES LOG -->
+<div id="tab-sales" class="section">
+  <div class="card">
+    <div class="card-title">Sales log — FY2026</div>
+    <div class="overflow">
+      <table>
+        <thead><tr><th>#</th><th>Date</th><th>Description</th><th>Metal</th><th>Sale price</th><th>Cost basis</th><th>Est. profit</th><th>Platform</th></tr></thead>
+        <tbody id="sales-body"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- LOG SALE -->
+<div id="tab-logsale" class="section">
+  <div class="card">
+    <div class="card-title">Log a new sale</div>
+    <p style="font-size:13px;color:#888;margin-bottom:16px;line-height:1.6">Fill in the details. This generates a tab-separated row — copy it and paste into your Google Sheet Sales Log tab (row 5 onward), then tell Claude to remove the item from inventory and update the master sheet.</p>
+    <div class="form-grid">
+      <div><label>Description</label><input type="text" id="ld" placeholder="e.g. 1899 $5 Indian Chief PMG VF25"></div>
+      <div><label>Category</label><select id="lm"><option>Gold</option><option>Silver</option><option>Paper Currency</option><option>Platinum</option><option>Misc Coins</option></select></div>
+      <div><label>Sale price ($)</label><input type="text" id="lp" placeholder="300.00"></div>
+      <div><label>Cost basis ($)</label><input type="text" id="lc" placeholder="173.50"></div>
+      <div><label>Platform / Buyer</label><input type="text" id="lpl" placeholder="eBay, Reddit, Direct..."></div>
+      <div><label>Seller fees ($)</label><input type="text" id="lf" placeholder="0.00"></div>
+      <div><label>Shipping cost ($)</label><input type="text" id="lsh" placeholder="0.00"></div>
+      <div><label>Date sold</label><input type="text" id="ldt"></div>
+    </div>
+    <div><label>Serial / Notes / Grade</label><input type="text" id="ln" placeholder="PMG VF30, serial K40347501A, etc."></div>
+    <div style="margin-top:8px">
+      <button class="btn btn-green" onclick="buildSaleRow()">Generate row</button>
+      <button class="btn btn-gold" id="copy-btn" style="display:none" onclick="copySaleRow()">Copy to clipboard</button>
+    </div>
+    <div id="sale-preview" class="sale-preview" style="display:none"></div>
+    <div id="sale-msg" style="margin-top:10px;font-size:13px;color:#888"></div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div id="tab-setup" class="section">
+  <div class="card">
+    <div class="card-title">Google Sheets connection</div>
+    <div class="setup-step">
+      <div class="step-num">1</div>
+      <div><div class="step-title">API Key</div><div class="step-desc">Your Google Sheets API key (starts with AIzaSy)</div>
+      <input type="text" id="cfg-key" placeholder="AIzaSy..." style="margin-top:8px">
+      </div>
+    </div>
+    <div class="setup-step">
+      <div class="step-num">2</div>
+      <div><div class="step-title">Sheet ID</div><div class="step-desc">The ID from your Google Sheet URL between /d/ and /edit</div>
+      <input type="text" id="cfg-sid" placeholder="1A30u1ouXYIP..." style="margin-top:8px">
+      </div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-gold" onclick="saveAndTest()">Save &amp; test</button>
+      <button class="btn" onclick="clearCfg()">Clear</button>
+    </div>
+    <div id="setup-msg" style="margin-top:12px;font-size:13px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Tab names (edit if different in your sheet)</div>
+    <div class="form-grid">
+      <div><label>Master Summary</label><input type="text" id="t-master" value="Master Summary"></div>
+      <div><label>Gold</label><input type="text" id="t-gold" value="Gold"></div>
+      <div><label>Silver</label><input type="text" id="t-silver" value="Silver"></div>
+      <div><label>Notes (paper)</label><input type="text" id="t-notes" value="Notes"></div>
+      <div><label>Sales Log</label><input type="text" id="t-sales" value="Sales Log"></div>
+      <div><label>Data starts at row</label><input type="text" id="t-row" value="5"></div>
+    </div>
+    <button class="btn btn-gold" onclick="saveTabs()">Save tab config</button>
+  </div>
+</div>
+
+</div><!-- end content -->
+
+<script>
+const DEFAULT_KEY = 'AIzaSyA3b3yYwTfcB822LQN4m2QPz4fWUuJHwQc';
+const DEFAULT_SID = '1BvNuJywMbu-hH8IQ0-a6hce25fbotVzl_IsDVXVOw7s';
+const LS = 'lv73cfg';
+
+function getCfg() { try { return JSON.parse(localStorage.getItem(LS)||'{}'); } catch { return {}; } }
+function saveCfg(o) { localStorage.setItem(LS, JSON.stringify({...getCfg(),...o})); }
+function getKey() { return getCfg().key || DEFAULT_KEY; }
+function getSid() { return getCfg().sid || DEFAULT_SID; }
+function getTab(t,d) { return getCfg()[t] || d; }
+function getRow() { return parseInt(getCfg().row)||5; }
+
+function pnum(v) { return parseFloat(String(v||0).replace(/[$,]/g,''))||0; }
+function fmt(n) { return '$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function setConn(st,msg) {
+  document.getElementById('dot').className='conn-dot '+(st==='ok'?'ok':st==='err'?'err':'');
+  document.getElementById('conn-txt').textContent=msg;
+}
+
+async function gfetch(tab, range) {
+  const r = encodeURIComponent(`${tab}!${range}`);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${getSid()}/values/${r}?key=${getKey()}`;
+  const res = await fetch(url);
+  if (!res.ok) { const e=await res.json(); throw new Error(e.error?.message||'HTTP '+res.status); }
+  const d = await res.json();
+  return d.values||[];
+}
+
+async function loadDashboard() {
+  setConn('','Connecting...');
+  try {
+    const master = await gfetch(getTab('tabMaster','Master Summary'),'A1:F12');
+    setConn('ok','Connected — LadzVault73');
+    const spot = master[1]?master[1][0]||'':'';
+    const gm=spot.match(/Gold Spot:\s*\$([0-9,.]+)/);
+    const sm=spot.match(/Silver Spot:\s*\$([0-9,.]+)/);
+    const pm=spot.match(/Platinum Spot:\s*\$([0-9,.]+)/);
+    const um=spot.match(/Updated:\s*([^|]+)/);
+    if(gm){const g=parseFloat(gm[1].replace(',',''));document.getElementById('sg').textContent=fmt(g);document.getElementById('sgg').textContent='$'+(g/31.1035).toFixed(2);}
+    if(sm)document.getElementById('ss').textContent='$'+sm[1];
+    if(pm)document.getElementById('spt').textContent='$'+pm[1].replace(',','');
+    if(um)document.getElementById('su').textContent=um[1].trim();
+    const cats=[];
+    for(let i=4;i<=8;i++){
+      const r=master[i];
+      if(!r||!r[0]||r[0]==='Metal'||r[0]==='TOTAL PORTFOLIO')continue;
+      cats.push({cat:r[0],pieces:r[1]||'—',melt:r[3]||'—',retail:r[4]||'—'});
+    }
+    document.getElementById('port-body').innerHTML=cats.map(c=>`<tr><td>${c.cat}</td><td>${c.pieces}</td><td class="mono">${c.melt}</td><td class="mono">${c.retail}</td></tr>`).join('')||'<tr><td colspan="4" class="loading">No data</td></tr>';
+    const tot=master[9];
+    if(tot){document.getElementById('m1').textContent=tot[1]||'—';document.getElementById('m3').textContent=tot[3]||'—';document.getElementById('m2').textContent=tot[4]||'—';}
+    try {
+      const sales=await gfetch(getTab('tabSales','Sales Log'),'A5:O8');
+      let sold=0,pl=0;
+      sales.forEach(r=>{if(r[0]&&!isNaN(parseFloat(r[0]))){sold++;pl+=pnum(r[14]);}});
+      document.getElementById('m5').textContent=sold;
+      const pe=document.getElementById('m4');
+      pe.textContent=(pl>=0?'+':'-')+fmt(pl);
+      pe.className='mv '+(pl>=0?'pl-pos':'pl-neg');
+    } catch{}
+  } catch(e) {
+    setConn('err','Error: '+e.message);
+    document.getElementById('port-body').innerHTML='<tr><td colspan="4" class="loading" style="color:#E24B4A">'+e.message+'</td></tr>';
+  }
+}
+
+let allInv=[];
+async function loadAllInv() {
+  allInv=[];
+  document.getElementById('inv-body').innerHTML='<tr><td colspan="9" class="loading">Loading...</td></tr>';
+  const tabs=[{n:getTab('tabGold','Gold'),c:'Gold'},{n:getTab('tabSilver','Silver'),c:'Silver'},{n:'Platinum',c:'Platinum'}];
+  for(const t of tabs){
+    try{
+      const data=await gfetch(t.n,'A'+getRow()+':P160');
+      data.forEach(r=>{
+        if(!r[1]||r[1]==='TOTALS'||r[1]==='Description')return;
+        allInv.push({num:r[0]||'',desc:r[1]||'',brand:r[2]||'',cat:t.c,weight:r[4]||'',qty:r[6]||'1',melt:r[8]||'',retail:r[10]||'',cost:r[11]||'',status:r[14]||''});
+      });
+    }catch{}
+  }
+  filterInv();
+}
+
+function filterInv(){
+  const s=(document.getElementById('srch').value||'').toLowerCase();
+  const c=document.getElementById('fcat').value;
+  const f=allInv.filter(r=>(!s||r.desc.toLowerCase().includes(s)||r.brand.toLowerCase().includes(s))&&(!c||r.cat===c));
+  document.getElementById('inv-count').textContent=f.length+' items';
+  const tbody=document.getElementById('inv-body');
+  if(!f.length){tbody.innerHTML='<tr><td colspan="9" class="loading">No items found</td></tr>';return;}
+  tbody.innerHTML=f.map(r=>{
+    const bc=r.cat==='Gold'?'bg':r.cat==='Silver'?'bs':'bpl';
+    const sc=r.status==='Received'?'<span class="badge bkeep">In hand</span>':r.status==='Pending'?'<span class="badge bgrade">Pending</span>':r.status?`<span class="badge bkeep">${r.status}</span>`:'';
+    return`<tr><td style="color:#555;font-size:11px">${r.num}</td><td>${r.desc}</td><td style="font-size:12px;color:#888">${r.brand}</td><td>${r.weight}</td><td>${r.qty}</td><td class="mono">${r.melt}</td><td class="mono">${r.retail}</td><td class="mono">${r.cost}</td><td>${sc}</td></tr>`;
+  }).join('');
+}
+
+async function loadNotes(){
+  const tbody=document.getElementById('notes-body');
+  try{
+    const data=await gfetch(getTab('tabNotes','Notes'),'A4:I25');
+    const rows=data.filter(r=>r[2]&&r[4]&&r[4]!=='Description');
+    if(!rows.length){tbody.innerHTML='<tr><td colspan="7" class="loading">No notes found</td></tr>';return;}
+    tbody.innerHTML=rows.map(r=>{
+      const st=(r[8]||'').trim();
+      const bc=st==='SOLD'?'bsold':st==='Grading'||st==='Hold/Grade'?'bgrade':st==='Keep'?'bkeep':'bs';
+      return`<tr><td class="mono" style="font-size:11px">${r[2]||''}</td><td>${r[3]||''}</td><td>${r[4]||''}</td><td class="mono">$${r[5]||''}</td><td class="mono">$${r[6]||''}</td><td><span class="badge bpl">${r[7]||'—'}</span></td><td><span class="badge ${bc}">${st||'—'}</span></td></tr>`;
+    }).join('');
+  }catch(e){tbody.innerHTML='<tr><td colspan="7" class="loading" style="color:#E24B4A">'+e.message+'</td></tr>';}
+}
+
+async function loadSales(){
+  const tbody=document.getElementById('sales-body');
+  try{
+    const data=await gfetch(getTab('tabSales','Sales Log'),'A5:P8');
+    const rows=data.filter(r=>r[0]&&!isNaN(parseFloat(r[0])));
+    if(!rows.length){tbody.innerHTML='<tr><td colspan="8" class="loading">No sales logged yet</td></tr>';return;}
+    tbody.innerHTML=rows.map(r=>{
+      const pl=pnum(r[14]);
+      return`<tr><td>${r[0]}</td><td style="font-size:12px">${r[1]||''}</td><td>${r[2]||''}</td><td><span class="badge ${r[3]==='Gold'?'bg':r[3]==='Silver'?'bs':'bp'}">${r[3]||''}</span></td><td class="mono">${fmt(pnum(r[6]))}</td><td class="mono">${fmt(pnum(r[8]))}</td><td class="mono ${pl>=0?'pl-pos':'pl-neg'}">${pl>=0?'+':'-'}${fmt(pl)}</td><td style="font-size:12px">${r[15]||''}</td></tr>`;
+    }).join('');
+  }catch(e){tbody.innerHTML='<tr><td colspan="8" class="loading" style="color:#E24B4A">'+e.message+'</td></tr>';}
+}
+
+let saleRowTSV='';
+function buildSaleRow(){
+  const desc=document.getElementById('ld').value.trim();
+  const price=pnum(document.getElementById('lp').value);
+  const cost=pnum(document.getElementById('lc').value);
+  const fees=pnum(document.getElementById('lf').value);
+  const ship=pnum(document.getElementById('lsh').value);
+  if(!desc||!price){document.getElementById('sale-msg').textContent='Enter at least a description and sale price.';return;}
+  const profit=price-cost-fees-ship;
+  const row=['(next#)',document.getElementById('ldt').value,desc,document.getElementById('lm').value,1,document.getElementById('ln').value||'N/A',price.toFixed(2),price.toFixed(2),cost.toFixed(2),price.toFixed(2),fees.toFixed(2),ship.toFixed(2),'0.00',fees.toFixed(2),profit.toFixed(2),document.getElementById('lpl').value];
+  saleRowTSV=row.join('\t');
+  const prev=document.getElementById('sale-preview');
+  prev.textContent=row.join(' | ');
+  prev.style.display='block';
+  document.getElementById('copy-btn').style.display='inline-block';
+  const msg=document.getElementById('sale-msg');
+  msg.textContent='Est. profit: '+(profit>=0?'+':'-')+fmt(profit)+' — Copy this row, paste into Sales Log tab row 5, then tell Claude to remove from inventory.';
+  msg.style.color=profit>=0?'#639922':'#E24B4A';
+}
+function copySaleRow(){
+  navigator.clipboard.writeText(saleRowTSV).then(()=>{
+    const b=document.getElementById('copy-btn');b.textContent='Copied!';
+    setTimeout(()=>b.textContent='Copy to clipboard',2000);
+  }).catch(()=>alert('Copy failed — select the text above and copy manually.'));
+}
+
+async function saveAndTest(){
+  const key=document.getElementById('cfg-key').value.trim();
+  const sid=document.getElementById('cfg-sid').value.trim();
+  if(key)saveCfg({key});
+  if(sid)saveCfg({sid});
+  const msg=document.getElementById('setup-msg');
+  msg.textContent='Testing...';
+  try{
+    const res=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid||getSid()}?key=${key||getKey()}&fields=properties.title,sheets.properties.title`);
+    const d=await res.json();
+    if(d.error)throw new Error(d.error.message);
+    msg.className='status-ok';
+    msg.textContent='Connected to: '+d.properties.title+' — Tabs: '+d.sheets.map(s=>s.properties.title).join(', ');
+    setConn('ok','Connected — LadzVault73');
+  }catch(e){
+    msg.className='status-err';
+    msg.textContent='Error: '+e.message;
+    setConn('err','Connection failed');
+  }
+}
+function clearCfg(){localStorage.removeItem(LS);location.reload();}
+function saveTabs(){
+  saveCfg({tabMaster:document.getElementById('t-master').value,tabGold:document.getElementById('t-gold').value,tabSilver:document.getElementById('t-silver').value,tabNotes:document.getElementById('t-notes').value,tabSales:document.getElementById('t-sales').value,row:document.getElementById('t-row').value});
+  alert('Tab config saved.');
+}
+
+function showTab(name,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='dashboard')loadDashboard();
+  if(name==='inventory')loadAllInv();
+  if(name==='notes')loadNotes();
+  if(name==='sales')loadSales();
+  if(name==='logsale')document.getElementById('ldt').value=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  if(name==='setup'){const c=getCfg();if(c.key)document.getElementById('cfg-key').value=c.key;if(c.sid)document.getElementById('cfg-sid').value=c.sid;}
+}
+
+loadDashboard();
+</script>
+</body>
+</html>
