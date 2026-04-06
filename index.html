@@ -8,7 +8,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f0; color: #1a1a1a; font-size: 14px; }
 .header { background: #0d0d0d; border-bottom: 2px solid #C9A84C; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-.header h1 { font-size: 18px; color: #C9A84C; font-weight: 600; }
+.header h1 { font-size: 22px; color: #C9A84C; font-weight: 800; text-align: center; width: 100%; }
 .header .sub { font-size: 11px; color: #888; margin-top: 2px; }
 .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: #BA7517; display: inline-block; margin-right: 6px; }
 .conn-dot.ok { background: #639922; }
@@ -70,9 +70,9 @@ label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
 </head>
 <body>
 
-<div class="header">
-  <div><h1>LadzVault73</h1><div class="sub">Precious Metals &amp; Currency Inventory</div></div>
-  <div style="display:flex;align-items:center">
+<div class="header" style="position:relative;justify-content:center;">
+  <div style="text-align:center;"><h1>LadzVault73</h1><div class="sub">Precious Metals &amp; Currency Inventory</div></div>
+  <div style="display:flex;align-items:center;position:absolute;right:20px;">
     <span class="conn-dot" id="dot"></span>
     <span class="conn-label" id="conn-txt">Connecting...</span>
   </div>
@@ -286,7 +286,7 @@ async function loadDashboard() {
 
     // Sales
     try {
-      const sales = await gfetch("Sales Log","A5:J10");
+      const sales = await gfetch("Sales Log","A5:J299");
       let sold=0, pl=0;
       sales.forEach(r=>{ if(r[0]&&!isNaN(parseFloat(r[0]))){ sold++; pl+=pnum(r[9]); } });
       document.getElementById("m5").textContent = sold;
