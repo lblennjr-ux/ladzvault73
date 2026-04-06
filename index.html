@@ -7,7 +7,7 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f0; color: #1a1a1a; font-size: 14px; }
-.header { background: #0d0d0d; border-bottom: 2px solid #C9A84C; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.header { background: #0d0d0d; border-bottom: 2px solid #C9A84C; padding: 16px 20px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 100; min-height: 90px; }
 .header h1 { font-size: 18px; color: #C9A84C; font-weight: 600; }
 .header .sub { font-size: 11px; color: #888; margin-top: 2px; }
 .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: #BA7517; display: inline-block; margin-right: 6px; }
@@ -71,14 +71,36 @@ label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
 <body>
 
 <div class="header">
-  <div><h1>LadzVault73</h1><div class="sub">Precious Metals &amp; Currency Inventory</div></div>
-  <div style="display:flex;align-items:center">
+  <div style="display:flex;flex-direction:column;align-items:center;width:100%;gap:6px">
+    <svg width="260" height="58" viewBox="0 0 260 58" xmlns="http://www.w3.org/2000/svg">
+      <!-- Coin left -->
+      <circle cx="22" cy="26" r="18" fill="none" stroke="#C9A84C" stroke-width="2"/>
+      <circle cx="22" cy="26" r="13" fill="none" stroke="#C9A84C" stroke-width="0.8" opacity="0.5"/>
+      <text x="22" y="31" text-anchor="middle" font-family="Georgia,serif" font-size="13" font-weight="bold" fill="#C9A84C">$</text>
+      <!-- Vault door right -->
+      <circle cx="238" cy="26" r="18" fill="none" stroke="#C9A84C" stroke-width="2"/>
+      <circle cx="238" cy="26" r="10" fill="none" stroke="#C9A84C" stroke-width="1" opacity="0.6"/>
+      <!-- vault spokes -->
+      <line x1="238" y1="16" x2="238" y2="36" stroke="#C9A84C" stroke-width="1" opacity="0.5"/>
+      <line x1="228" y1="26" x2="248" y2="26" stroke="#C9A84C" stroke-width="1" opacity="0.5"/>
+      <line x1="231" y1="19" x2="245" y2="33" stroke="#C9A84C" stroke-width="1" opacity="0.5"/>
+      <line x1="245" y1="19" x2="231" y2="33" stroke="#C9A84C" stroke-width="1" opacity="0.5"/>
+      <circle cx="238" cy="26" r="3" fill="#C9A84C"/>
+      <!-- Main text -->
+      <text x="130" y="24" text-anchor="middle" font-family="Georgia,serif" font-size="20" font-weight="bold" letter-spacing="2" fill="#C9A84C">LADZVAULT</text>
+      <text x="130" y="43" text-anchor="middle" font-family="Georgia,serif" font-size="16" letter-spacing="8" fill="#C9A84C" opacity="0.85">73</text>
+      <!-- underline accent -->
+      <line x1="70" y1="48" x2="190" y2="48" stroke="#C9A84C" stroke-width="0.5" opacity="0.4"/>
+    </svg>
+    <div style="font-size:10px;letter-spacing:0.2em;color:#555;text-transform:uppercase">Precious Metals &amp; Currency Inventory</div>
+  </div>
+  <div style="position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;align-items:center">
     <span class="conn-dot" id="dot"></span>
     <span class="conn-label" id="conn-txt">Connecting...</span>
   </div>
 </div>
 
-<div class="nav">
+<div class="nav" style="justify-content:center">
   <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>
   <button onclick="showTab('inventory',this)">Inventory</button>
   <button onclick="showTab('notes',this)">Paper Money</button>
