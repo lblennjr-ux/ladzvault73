@@ -8,7 +8,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f0; color: #1a1a1a; font-size: 14px; }
 .header { background: #0d0d0d; border-bottom: 2px solid #C9A84C; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-.header h1 { font-size: 22px; color: #C9A84C; font-weight: 800; text-align: center; width: 100%; }
+.header h1 { font-size: 18px; color: #C9A84C; font-weight: 600; }
 .header .sub { font-size: 11px; color: #888; margin-top: 2px; }
 .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: #BA7517; display: inline-block; margin-right: 6px; }
 .conn-dot.ok { background: #639922; }
@@ -70,9 +70,9 @@ label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
 </head>
 <body>
 
-<div class="header" style="position:relative;justify-content:center;">
-  <div style="text-align:center;"><h1>LadzVault73</h1><div class="sub">Precious Metals &amp; Currency Inventory</div></div>
-  <div style="display:flex;align-items:center;position:absolute;right:20px;">
+<div class="header">
+  <div><h1>LadzVault73</h1><div class="sub">Precious Metals &amp; Currency Inventory</div></div>
+  <div style="display:flex;align-items:center">
     <span class="conn-dot" id="dot"></span>
     <span class="conn-label" id="conn-txt">Connecting...</span>
   </div>
@@ -82,6 +82,7 @@ label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
   <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>
   <button onclick="showTab('inventory',this)">Inventory</button>
   <button onclick="showTab('notes',this)">Paper Money</button>
+  <button onclick="showTab('orders',this)">Orders</button>
   <button onclick="showTab('sales',this)">Sales Log</button>
   <button onclick="showTab('logsale',this)">Log Sale</button>
   <button onclick="showTab('setup',this)">Setup</button>
@@ -100,14 +101,22 @@ label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
     <div class="metric"><div class="ml">Total pieces</div><div class="mv" id="m1">—</div></div>
     <div class="metric"><div class="ml">Est. retail</div><div class="mv" id="m2">—</div></div>
     <div class="metric"><div class="ml">Melt value</div><div class="mv" id="m3">—</div></div>
-    <div class="metric"><div class="ml">Total P&amp;L</div><div class="mv" id="m4">—</div></div>
-    <div class="metric"><div class="ml">Items sold</div><div class="mv" id="m5">—</div></div>
+<span id="m4" style="display:none"></span><span id="m5" style="display:none"></span>
   </div>
   <div class="card">
     <div class="card-title">Portfolio breakdown</div>
     <table>
       <thead><tr><th>Category</th><th>Pieces</th><th>Melt value</th><th>Est. retail</th><th>Cost basis</th></tr></thead>
       <tbody id="port-body"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+    </table>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">FY2026 Sales Summary</div>
+    <table style="max-width:420px">
+      <tr><td style="color:#888;padding:8px 0;border-bottom:1px solid #1e1e1e">Total Sales Revenue</td><td class="mono" style="padding:8px 0;border-bottom:1px solid #1e1e1e;text-align:right" id="fy-rev">—</td></tr>
+      <tr><td style="color:#888;padding:8px 0;border-bottom:1px solid #1e1e1e">Total Cost Basis Sold</td><td class="mono" style="padding:8px 0;border-bottom:1px solid #1e1e1e;text-align:right" id="fy-cost">—</td></tr>
+      <tr><td style="color:#888;padding:8px 0;border-bottom:1px solid #1e1e1e;font-weight:600;color:#e8e8e0">Total Est. Profit</td><td class="mono" style="padding:8px 0;border-bottom:1px solid #1e1e1e;text-align:right;font-weight:700;font-size:15px" id="fy-profit">—</td></tr>
+      <tr><td style="color:#888;padding:8px 0">Items Sold</td><td class="mono" style="padding:8px 0;text-align:right" id="fy-items">—</td></tr>
     </table>
   </div>
   <div style="font-size:12px;color:#555;margin-top:8px;display:flex;align-items:center;gap:6px">
@@ -143,6 +152,43 @@ label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
       <thead><tr><th>#</th><th>Description / Serial</th><th>Series / FR#</th><th>Year</th><th>Denom</th><th>Cost</th><th>Grade</th><th>Status</th></tr></thead>
       <tbody id="notes-body"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
     </table>
+  </div>
+</div>
+
+<div id="tab-orders" class="section">
+  <div class="card">
+    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Orders — On Order / In Transit</span>
+      <button class="btn btn-gold" onclick="loadOrders()" style="margin:0">Refresh</button>
+    </div>
+    <div class="overflow">
+      <table>
+        <thead><tr><th>#</th><th>Description</th><th>Category</th><th>Qty</th><th>Price</th><th>Order Date</th><th>Seller</th><th>Est. Arrival</th><th>Tracking</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="orders-body"><tr><td colspan="11" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card" id="receive-card" style="display:none">
+    <div class="card-title">Receive item — <span id="receive-desc" style="color:#C9A84C"></span></div>
+    <p style="font-size:13px;color:#888;margin-bottom:14px;line-height:1.6">Fill in any missing details, then generate the inventory row. Copy it and paste into the correct tab in your Google Sheet starting at the next empty row, then delete or mark the order as Received.</p>
+    <div class="form-grid">
+      <div><label>Description / Serial / Notes</label><input type="text" id="rc-desc"></div>
+      <div><label>Mint / Brand</label><input type="text" id="rc-brand"></div>
+      <div><label>Weight unit</label><select id="rc-weight"><option>1oz</option><option>0.5oz</option><option>2oz</option><option>5oz</option><option>10oz</option><option>1g</option><option>2g</option><option>2.5g</option><option>5g</option><option>10g</option><option>20g</option><option>1/10oz</option><option>1/4oz</option><option>1/2oz</option><option>0.8594oz</option><option>0.77344oz</option><option>1.2oz</option></select></div>
+      <div><label>Purity</label><input type="text" id="rc-purity" placeholder=".999"></div>
+      <div><label>Qty</label><input type="text" id="rc-qty" placeholder="1"></div>
+      <div><label>Purchase price ($)</label><input type="text" id="rc-cost"></div>
+      <div><label>Destination tab</label><select id="rc-tab"><option value="Gold">Gold</option><option value="Silver">Silver</option><option value="Platinum">Platinum</option><option value="Notes">Paper Money</option></select></div>
+      <div><label>Received date</label><input type="text" id="rc-date"></div>
+    </div>
+    <div><label>Seller / Source</label><input type="text" id="rc-seller"></div>
+    <div style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-green" onclick="buildReceiveRow()">Generate inventory row</button>
+      <button class="btn" onclick="document.getElementById('receive-card').style.display='none'">Cancel</button>
+      <button class="btn btn-gold" id="rc-copy-btn" style="display:none" onclick="copyReceiveRow()">Copy to clipboard</button>
+    </div>
+    <div id="rc-preview" class="sale-preview" style="display:none"></div>
+    <div id="rc-msg" style="margin-top:10px;font-size:13px;color:#888"></div>
   </div>
 </div>
 
@@ -264,7 +310,7 @@ async function loadDashboard() {
 
     // Master Summary — rows 5-9, cols A-F
     // Row1=title, Row2=spot labels, Row3=blank, Row4=headers, Row5=Gold...
-    const master = await gfetch("Master Summary","A1:F12");
+    const master = await gfetch("Master Summary","A1:F16");
     setConn("ok","Connected — LadzVault73");
 
     // rows index: master[4]=Gold(row5), [5]=Silver, [6]=Platinum, [7]=Paper, [8]=TOTAL
@@ -284,16 +330,37 @@ async function loadDashboard() {
       `<tr><td>${c.cat}</td><td>${c.pieces}</td><td class="mono">${c.melt}</td><td class="mono">${c.retail}</td><td class="mono">${c.cost}</td></tr>`
     ).join("")||"<tr><td colspan='5' class='loading'>No data</td></tr>";
 
-    // Sales
+    // FY2026 Sales Summary from Master Summary rows 12-15 (0-indexed: 11-14)
     try {
-      const sales = await gfetch("Sales Log","A5:J299");
-      let sold=0, pl=0;
-      sales.forEach(r=>{ if(r[0]&&!isNaN(parseFloat(r[0]))){ sold++; pl+=pnum(r[9]); } });
-      document.getElementById("m5").textContent = sold;
+      const fy = master.slice(10,15);
+      const rev   = pnum(fy[1]?.[2]);
+      const cost  = pnum(fy[2]?.[2]);
+      const profit= pnum(fy[3]?.[2]);
+      const items = fy[4]?.[2]||0;
+      document.getElementById("fy-rev").textContent   = fmt(rev);
+      document.getElementById("fy-cost").textContent  = fmt(cost);
+      const profEl = document.getElementById("fy-profit");
+      profEl.textContent = (profit>=0?"+":"-")+fmt(profit);
+      profEl.style.color = profit>=0?"#639922":"#E24B4A";
+      document.getElementById("fy-items").textContent = items;
+      // also update metric cards
+      document.getElementById("m5").textContent = items;
       const pe=document.getElementById("m4");
-      pe.textContent=(pl>=0?"+":"-")+fmt(pl);
-      pe.className="mv "+(pl>=0?"pl-pos":"pl-neg");
-    } catch{}
+      pe.textContent=(profit>=0?"+":"-")+fmt(profit);
+      pe.className="mv "+(profit>=0?"pl-pos":"pl-neg");
+    } catch{
+      // fallback — count from sales log directly
+      try {
+        const sales = await gfetch("Sales Log","A5:J50");
+        let sold=0, pl=0;
+        sales.forEach(r=>{ if(r[0]&&!isNaN(parseFloat(r[0]))){ sold++; pl+=pnum(r[9]); } });
+        document.getElementById("m5").textContent = sold;
+        document.getElementById("fy-items").textContent = sold;
+        const pe=document.getElementById("m4");
+        pe.textContent=(pl>=0?"+":"-")+fmt(pl);
+        pe.className="mv "+(pl>=0?"pl-pos":"pl-neg");
+      } catch{}
+    }
   } catch(e) {
     setConn("err","Error: "+e.message);
     document.getElementById("port-body").innerHTML=`<tr><td colspan="5" class="loading" style="color:#E24B4A">${e.message}</td></tr>`;
@@ -373,6 +440,91 @@ async function loadNotes(){
       </tr>`;
     }).join("");
   }catch(e){tbody.innerHTML=`<tr><td colspan="8" class="loading" style="color:#E24B4A">${e.message}</td></tr>`;}
+}
+
+async function loadOrders(){
+  const tbody=document.getElementById("orders-body");
+  try{
+    // Orders cols: A:#, B:Desc, C:Cat, D:Qty, E:Price, F:OrderDate, G:Seller, H:Arrival, I:Tracking, J:Status, K:Notes
+    const data=await gfetch("Orders","A5:K100");
+    const rows=data.filter(r=>r[1]&&r[1]!=="Description"&&r[1]!=="TOTALS");
+    if(!rows.length){tbody.innerHTML=`<tr><td colspan="11" class="loading">No orders found</td></tr>`;return;}
+    tbody.innerHTML=rows.map((r,i)=>{
+      const status=(r[9]||"Ordered").trim();
+      const bc=status==="Received"?"bsold":status==="Shipped"?"bgrade":"bpend";
+      return`<tr>
+        <td style="color:#555;font-size:11px">${r[0]||i+1}</td>
+        <td>${r[1]||""}</td>
+        <td><span class="badge ${r[2]==="Gold"?"bg":r[2]==="Silver"?"bs":r[2]==="Platinum"?"bpl":"bp"}">${r[2]||""}</span></td>
+        <td>${r[3]||"1"}</td>
+        <td class="mono">${r[4]?("$"+pnum(r[4]).toFixed(2)):""}</td>
+        <td style="font-size:12px">${r[5]||""}</td>
+        <td style="font-size:12px">${r[6]||""}</td>
+        <td style="font-size:12px">${r[7]||""}</td>
+        <td style="font-size:11px;color:#888">${r[8]||""}</td>
+        <td><span class="badge ${bc}">${status}</span></td>
+        <td><button class="btn btn-green" style="padding:4px 10px;font-size:12px;margin:0"
+          onclick="openReceive('${(r[1]||"").replace(/'/g,"\\'")}','${r[2]||"Silver"}','${r[3]||1}','${r[4]||""}','${r[6]||""}')">
+          Receive
+        </button></td>
+      </tr>`;
+    }).join("");
+  }catch(e){tbody.innerHTML=`<tr><td colspan="11" class="loading" style="color:#E24B4A">${e.message}</td></tr>`;}
+}
+
+function openReceive(desc,cat,qty,cost,seller){
+  document.getElementById("receive-card").style.display="block";
+  document.getElementById("receive-desc").textContent=desc;
+  document.getElementById("rc-desc").value=desc;
+  document.getElementById("rc-qty").value=qty;
+  document.getElementById("rc-cost").value=cost;
+  document.getElementById("rc-seller").value=seller;
+  document.getElementById("rc-date").value=new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  // auto-select destination tab
+  const tabMap={"Gold":"Gold","Silver":"Silver","Platinum":"Platinum","Paper Currency":"Notes","Notes":"Notes"};
+  const sel=document.getElementById("rc-tab");
+  sel.value=tabMap[cat]||"Silver";
+  document.getElementById("rc-preview").style.display="none";
+  document.getElementById("rc-copy-btn").style.display="none";
+  document.getElementById("rc-msg").textContent="";
+  document.getElementById("receive-card").scrollIntoView({behavior:"smooth"});
+}
+
+let rcRowTSV="";
+function buildReceiveRow(){
+  const desc=document.getElementById("rc-desc").value.trim();
+  const brand=document.getElementById("rc-brand").value.trim();
+  const weight=document.getElementById("rc-weight").value;
+  const purity=document.getElementById("rc-purity").value.trim()||".999";
+  const qty=document.getElementById("rc-qty").value.trim()||"1";
+  const cost=pnum(document.getElementById("rc-cost").value);
+  const seller=document.getElementById("rc-seller").value.trim();
+  const date=document.getElementById("rc-date").value.trim();
+  const tab=document.getElementById("rc-tab").value;
+  if(!desc){document.getElementById("rc-msg").textContent="Enter a description.";return;}
+  const metal=tab==="Notes"?"Paper":tab;
+  // metals row: #, Desc, Brand, Metal, Weight, Purity, Qty, OzTroy(blank-formula), MeltEa(blank), MeltTotal(blank), EstRetail(blank), Cost, Date, Seller, Status
+  let row;
+  if(tab==="Notes"){
+    // notes row: #, Desc, Series/FR#, Year, Denom, Cost, Grade, Status
+    row=["(next#)",desc,"","","",cost.toFixed(2),"","Received"];
+  } else {
+    row=["(next#)",desc,brand,metal,weight,purity,qty,"","","","",cost.toFixed(2),date,seller,"Received"];
+  }
+  rcRowTSV=row.join("\t");
+  const prev=document.getElementById("rc-preview");
+  prev.textContent=row.join(" | ");
+  prev.style.display="block";
+  document.getElementById("rc-copy-btn").style.display="inline-block";
+  const msg=document.getElementById("rc-msg");
+  msg.textContent=`Paste into your ${tab} tab → next empty row after row 5. Then delete or mark the order as Received in the Orders tab.`;
+  msg.style.color="#C9A84C";
+}
+function copyReceiveRow(){
+  navigator.clipboard.writeText(rcRowTSV).then(()=>{
+    const b=document.getElementById("rc-copy-btn");b.textContent="Copied!";
+    setTimeout(()=>b.textContent="Copy to clipboard",2000);
+  }).catch(()=>alert("Copy failed — select the text above manually."));
 }
 
 async function loadSales(){
@@ -458,6 +610,7 @@ function showTab(name,btn){
   if(name==="dashboard") loadDashboard();
   if(name==="inventory") loadAllInv();
   if(name==="notes") loadNotes();
+  if(name==="orders") loadOrders();
   if(name==="sales") loadSales();
   if(name==="logsale") document.getElementById("ldt").value=new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
   if(name==="setup"){const c=getCfg();if(c.key)document.getElementById("cfg-key").value=c.key;if(c.sid)document.getElementById("cfg-sid").value=c.sid;}
