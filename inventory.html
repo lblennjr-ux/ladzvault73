@@ -65,38 +65,56 @@ label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
 .step-num { width: 26px; height: 26px; border-radius: 50%; background: #2a2a2a; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; color: #C9A84C; }
 .step-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #e8e8e0; }
 .step-desc { font-size: 13px; color: #888; line-height: 1.6; }
+
+/* PASSWORD GATE */
+#pw-gate { position: fixed; inset: 0; background: #0a0a0a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+.pw-box { background: #161616; border: 1px solid #2a2a2a; border-top: 3px solid #C9A84C; border-radius: 8px; padding: 40px 36px; width: 100%; max-width: 340px; text-align: center; }
+.pw-logo { font-family: Georgia, serif; font-size: 22px; font-weight: bold; letter-spacing: 3px; color: #C9A84C; margin-bottom: 6px; }
+.pw-sub { font-size: 11px; color: #555; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 28px; }
+.pw-box input { background: #0d0d0d; border: 1px solid #2a2a2a; color: #e8e8e0; padding: 10px 14px; border-radius: 6px; font-size: 14px; width: 100%; margin-bottom: 12px; text-align: center; letter-spacing: 2px; }
+.pw-box input:focus { outline: none; border-color: #C9A84C; }
+.pw-btn { width: 100%; padding: 10px; background: #3a2800; border: 1px solid #C9A84C; color: #C9A84C; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; letter-spacing: 1px; }
+.pw-btn:hover { background: #4a3400; }
+.pw-err { color: #E24B4A; font-size: 12px; margin-top: 10px; min-height: 18px; }
+
+#app { display: none; }
+
 @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .metrics { grid-template-columns: 1fr 1fr; } .content { padding: 12px; } }
 </style>
 </head>
 <body>
 
+<!-- PASSWORD GATE -->
+<div id="pw-gate">
+  <div class="pw-box">
+    <div class="pw-logo">LADZVAULT73</div>
+    <div class="pw-sub">Inventory System</div>
+    <input type="password" id="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">UNLOCK</button>
+    <div class="pw-err" id="pw-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
 <div class="header">
   <div style="display:flex;flex-direction:column;align-items:center;width:100%;gap:6px">
     <svg width="300" height="62" viewBox="0 0 300 62" xmlns="http://www.w3.org/2000/svg">
-      <!-- Dollar sign icon left -->
       <circle cx="24" cy="30" r="19" fill="none" stroke="#C9A84C" stroke-width="1.8"/>
       <circle cx="24" cy="30" r="14" fill="none" stroke="#C9A84C" stroke-width="0.6" opacity="0.4"/>
       <text x="24" y="36" text-anchor="middle" font-family="Georgia,serif" font-size="18" font-weight="bold" fill="#C9A84C">$</text>
-      <!-- Safe icon right -->
       <circle cx="276" cy="30" r="19" fill="none" stroke="#C9A84C" stroke-width="1.8"/>
-      <!-- safe body -->
       <rect x="263" y="19" width="26" height="22" rx="2" fill="none" stroke="#C9A84C" stroke-width="1.2"/>
-      <!-- safe door inner -->
       <rect x="266" y="22" width="14" height="16" rx="1" fill="none" stroke="#C9A84C" stroke-width="0.8" opacity="0.6"/>
-      <!-- dial -->
       <circle cx="273" cy="30" r="4" fill="none" stroke="#C9A84C" stroke-width="1"/>
       <circle cx="273" cy="30" r="1.2" fill="#C9A84C"/>
       <line x1="273" y1="27" x2="273" y2="26" stroke="#C9A84C" stroke-width="1"/>
-      <!-- handle -->
       <rect x="280" y="27" width="2.5" height="6" rx="1" fill="#C9A84C" opacity="0.7"/>
-      <!-- hinge dots -->
       <circle cx="267" cy="24" r="0.8" fill="#C9A84C" opacity="0.5"/>
       <circle cx="267" cy="36" r="0.8" fill="#C9A84C" opacity="0.5"/>
-      <!-- Main text -->
       <text x="150" y="26" text-anchor="middle" font-family="Georgia,serif" font-size="20" font-weight="bold" letter-spacing="3" fill="#C9A84C">LADZVAULT</text>
-      <!-- 73 bold and prominent -->
       <text x="150" y="46" text-anchor="middle" font-family="Georgia,serif" font-size="20" font-weight="bold" letter-spacing="10" fill="#C9A84C">73</text>
-      <!-- accent lines -->
       <line x1="55" y1="50" x2="118" y2="50" stroke="#C9A84C" stroke-width="0.5" opacity="0.35"/>
       <line x1="182" y1="50" x2="245" y2="50" stroke="#C9A84C" stroke-width="0.5" opacity="0.35"/>
     </svg>
@@ -131,7 +149,7 @@ label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
     <div class="metric"><div class="ml">Total pieces</div><div class="mv" id="m1">—</div></div>
     <div class="metric"><div class="ml">Est. retail</div><div class="mv" id="m2">—</div></div>
     <div class="metric"><div class="ml">Melt value</div><div class="mv" id="m3">—</div></div>
-<span id="m4" style="display:none"></span><span id="m5" style="display:none"></span>
+    <span id="m4" style="display:none"></span><span id="m5" style="display:none"></span>
   </div>
   <div class="card">
     <div class="card-title">Portfolio breakdown</div>
@@ -200,7 +218,7 @@ label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
   </div>
   <div class="card" id="receive-card" style="display:none">
     <div class="card-title">Receive item — <span id="receive-desc" style="color:#C9A84C"></span></div>
-    <p style="font-size:13px;color:#888;margin-bottom:14px;line-height:1.6">Fill in any missing details, then generate the inventory row. Copy it and paste into the correct tab in your Google Sheet starting at the next empty row, then delete or mark the order as Received.</p>
+    <p style="font-size:13px;color:#888;margin-bottom:14px;line-height:1.6">Fill in any missing details, then generate the inventory row.</p>
     <div class="form-grid">
       <div><label>Description / Serial / Notes</label><input type="text" id="rc-desc"></div>
       <div><label>Mint / Brand</label><input type="text" id="rc-brand"></div>
@@ -237,7 +255,7 @@ label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
 <div id="tab-logsale" class="section">
   <div class="card">
     <div class="card-title">Log a new sale</div>
-    <p style="font-size:13px;color:#888;margin-bottom:16px;line-height:1.6">Fill in the details. Generates a tab-separated row — copy it and paste into your Google Sheet Sales Log tab starting at row 5, then tell Claude to remove the item from inventory.</p>
+    <p style="font-size:13px;color:#888;margin-bottom:16px;line-height:1.6">Fill in the details. Generates a tab-separated row — copy it and paste into your Google Sheet Sales Log tab.</p>
     <div class="form-grid">
       <div><label>Description / Serial</label><input type="text" id="ld" placeholder="e.g. 1899 $5 Indian Chief PMG VF25"></div>
       <div><label>Category</label><select id="lm"><option>Gold</option><option>Silver</option><option>Paper Currency</option><option>Platinum</option><option>Misc Coins</option></select></div>
@@ -288,9 +306,25 @@ label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
   </div>
 </div>
 
-</div>
+</div><!-- end .content -->
+</div><!-- end #app -->
 
 <script>
+// PASSWORD GATE
+function checkPw() {
+  const val = document.getElementById("pw-input").value;
+  if (val === "Barney") {
+    document.getElementById("pw-gate").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    loadDashboard();
+  } else {
+    const err = document.getElementById("pw-err");
+    err.textContent = "Incorrect password.";
+    document.getElementById("pw-input").value = "";
+    setTimeout(() => err.textContent = "", 2000);
+  }
+}
+
 const API_KEY = "AIzaSyA3b3yYwTfcB822LQN4m2QPz4fWUuJHwQc";
 const SHEET_ID = "1BvNuJywMbu-hH8IQ0-a6hce25fbotVzl_IsDVXVOw7s";
 const LS = "lv73cfg2";
@@ -303,14 +337,8 @@ function pnum(v) { return parseFloat(String(v||0).replace(/[$,]/g,""))||0; }
 function fmt(n) { return "$"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 function setConn(st,msg) {
-  ["dot","dot2"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.className="conn-dot "+(st==="ok"?"ok":st==="err"?"err":"");
-  });
-  ["conn-txt","conn-txt2"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.textContent=msg;
-  });
+  ["dot","dot2"].forEach(id=>{ const el=document.getElementById(id); if(el) el.className="conn-dot "+(st==="ok"?"ok":st==="err"?"err":""); });
+  ["conn-txt","conn-txt2"].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=msg; });
 }
 
 async function gfetch(tab, range) {
@@ -324,73 +352,37 @@ async function gfetch(tab, range) {
 async function loadDashboard() {
   setConn("","Connecting...");
   try {
-    // Fetch spot prices from Gold tab row 3
-    // B3=gold spot, D3=gold/g, F3=silver spot, H3=platinum spot
     const spotData = await gfetch("Gold","B3:H3");
     const spotRow = spotData[0]||[];
     const goldOz = pnum(spotRow[0]);
     const goldG  = pnum(spotRow[2]);
     const silverOz = pnum(spotRow[4]);
     const platOz = pnum(spotRow[6]);
-
     if(goldOz) document.getElementById("sg").textContent = fmt(goldOz);
     if(goldG)  document.getElementById("sgg").textContent = "$"+goldG.toFixed(2);
     if(silverOz) document.getElementById("ss").textContent = fmt(silverOz);
     if(platOz) document.getElementById("spt").textContent = fmt(platOz);
-
-    // Master Summary — rows 5-9, cols A-F
-    // Row1=title, Row2=spot labels, Row3=blank, Row4=headers, Row5=Gold...
     const master = await gfetch("Master Summary","A1:F16");
     setConn("ok","Connected — LadzVault73");
-
-    // rows index: master[4]=Gold(row5), [5]=Silver, [6]=Platinum, [7]=Paper, [8]=TOTAL
     const cats=[];
-    for(let i=4;i<=7;i++){
-      const r=master[i];
-      if(!r||!r[0]) continue;
-      cats.push({cat:r[0], pieces:r[1]||"—", melt:r[2]||"—", retail:r[3]||"—", cost:r[4]||"—"});
-    }
+    for(let i=4;i<=7;i++){ const r=master[i]; if(!r||!r[0]) continue; cats.push({cat:r[0],pieces:r[1]||"—",melt:r[2]||"—",retail:r[3]||"—",cost:r[4]||"—"}); }
     const tot = master[8]||[];
-
     document.getElementById("m1").textContent = tot[1]||"—";
     document.getElementById("m3").textContent = tot[2]||"—";
     document.getElementById("m2").textContent = tot[3]||"—";
-
-    document.getElementById("port-body").innerHTML = cats.map(c=>
-      `<tr><td>${c.cat}</td><td>${c.pieces}</td><td class="mono">${c.melt}</td><td class="mono">${c.retail}</td><td class="mono">${c.cost}</td></tr>`
-    ).join("")||"<tr><td colspan='5' class='loading'>No data</td></tr>";
-
-    // FY2026 Sales Summary from Master Summary rows 12-15 (0-indexed: 11-14)
+    document.getElementById("port-body").innerHTML = cats.map(c=>`<tr><td>${c.cat}</td><td>${c.pieces}</td><td class="mono">${c.melt}</td><td class="mono">${c.retail}</td><td class="mono">${c.cost}</td></tr>`).join("")||"<tr><td colspan='5' class='loading'>No data</td></tr>";
     try {
       const fy = master.slice(10,15);
-      const rev   = pnum(fy[1]?.[2]);
-      const cost  = pnum(fy[2]?.[2]);
-      const profit= pnum(fy[3]?.[2]);
-      const items = fy[4]?.[2]||0;
-      document.getElementById("fy-rev").textContent   = fmt(rev);
-      document.getElementById("fy-cost").textContent  = fmt(cost);
-      const profEl = document.getElementById("fy-profit");
-      profEl.textContent = (profit>=0?"+":"-")+fmt(profit);
-      profEl.style.color = profit>=0?"#639922":"#E24B4A";
-      document.getElementById("fy-items").textContent = items;
-      // also update metric cards
-      document.getElementById("m5").textContent = items;
-      const pe=document.getElementById("m4");
-      pe.textContent=(profit>=0?"+":"-")+fmt(profit);
-      pe.className="mv "+(profit>=0?"pl-pos":"pl-neg");
-    } catch{
-      // fallback — count from sales log directly
-      try {
-        const sales = await gfetch("Sales Log","A5:J50");
-        let sold=0, pl=0;
-        sales.forEach(r=>{ if(r[0]&&!isNaN(parseFloat(r[0]))){ sold++; pl+=pnum(r[9]); } });
-        document.getElementById("m5").textContent = sold;
-        document.getElementById("fy-items").textContent = sold;
-        const pe=document.getElementById("m4");
-        pe.textContent=(pl>=0?"+":"-")+fmt(pl);
-        pe.className="mv "+(pl>=0?"pl-pos":"pl-neg");
-      } catch{}
-    }
+      const rev=pnum(fy[1]?.[2]); const cost=pnum(fy[2]?.[2]); const profit=pnum(fy[3]?.[2]); const items=fy[4]?.[2]||0;
+      document.getElementById("fy-rev").textContent=fmt(rev);
+      document.getElementById("fy-cost").textContent=fmt(cost);
+      const profEl=document.getElementById("fy-profit");
+      profEl.textContent=(profit>=0?"+":"-")+fmt(profit);
+      profEl.style.color=profit>=0?"#639922":"#E24B4A";
+      document.getElementById("fy-items").textContent=items;
+      document.getElementById("m5").textContent=items;
+      const pe=document.getElementById("m4"); pe.textContent=(profit>=0?"+":"-")+fmt(profit); pe.className="mv "+(profit>=0?"pl-pos":"pl-neg");
+    } catch { try { const sales=await gfetch("Sales Log","A5:J50"); let sold=0,pl=0; sales.forEach(r=>{ if(r[0]&&!isNaN(parseFloat(r[0]))){ sold++; pl+=pnum(r[9]); } }); document.getElementById("m5").textContent=sold; document.getElementById("fy-items").textContent=sold; const pe=document.getElementById("m4"); pe.textContent=(pl>=0?"+":"-")+fmt(pl); pe.className="mv "+(pl>=0?"pl-pos":"pl-neg"); } catch{} }
   } catch(e) {
     setConn("err","Error: "+e.message);
     document.getElementById("port-body").innerHTML=`<tr><td colspan="5" class="loading" style="color:#E24B4A">${e.message}</td></tr>`;
@@ -401,23 +393,8 @@ let allInv=[];
 async function loadAllInv() {
   allInv=[];
   document.getElementById("inv-body").innerHTML=`<tr><td colspan="10" class="loading">Loading...</td></tr>`;
-  // New columns: A:#, B:Desc, C:Brand, D:Metal, E:Weight, F:Purity, G:Qty
-  // H:OzTroy, I:Melt ea, J:Melt total, K:Est Retail, L:Purchase Price, M:Date, N:Seller, O:Status
   const tabs=[{n:"Gold",c:"Gold"},{n:"Silver",c:"Silver"},{n:"Platinum",c:"Platinum"}];
-  for(const t of tabs){
-    try{
-      const data=await gfetch(t.n,"A6:O299");
-      data.forEach(r=>{
-        if(!r[1]||r[1]==="TOTALS"||r[1]==="Description / Serial / Notes") return;
-        allInv.push({
-          num:r[0]||"", desc:r[1]||"", brand:r[2]||"", cat:t.c,
-          weight:r[4]||"", qty:r[6]||"1",
-          melt_ea:r[8]||"", melt_tot:r[9]||"", retail:r[10]||"",
-          cost:r[11]||"", status:r[14]||""
-        });
-      });
-    }catch{}
-  }
+  for(const t of tabs){ try{ const data=await gfetch(t.n,"A6:O299"); data.forEach(r=>{ if(!r[1]||r[1]==="TOTALS"||r[1]==="Description / Serial / Notes") return; allInv.push({num:r[0]||"",desc:r[1]||"",brand:r[2]||"",cat:t.c,weight:r[4]||"",qty:r[6]||"1",melt_ea:r[8]||"",melt_tot:r[9]||"",retail:r[10]||"",cost:r[11]||"",status:r[14]||""}); }); }catch{} }
   filterInv();
 }
 
@@ -428,78 +405,17 @@ function filterInv(){
   document.getElementById("inv-count").textContent=f.length+" items";
   const tbody=document.getElementById("inv-body");
   if(!f.length){tbody.innerHTML=`<tr><td colspan="10" class="loading">No items found</td></tr>`;return;}
-  tbody.innerHTML=f.map(r=>{
-    const bc=r.cat==="Gold"?"bg":r.cat==="Silver"?"bs":"bpl";
-    const sc=r.status==="Received"?`<span class="badge bkeep">In hand</span>`:
-             r.status==="Pending"?`<span class="badge bpend">Pending</span>`:
-             r.status?`<span class="badge bkeep">${r.status}</span>`:"";
-    return `<tr>
-      <td style="color:#555;font-size:11px">${r.num}</td>
-      <td>${r.desc}</td>
-      <td style="font-size:12px;color:#888">${r.brand}</td>
-      <td>${r.weight}</td>
-      <td>${r.qty}</td>
-      <td class="mono">${r.melt_ea}</td>
-      <td class="mono">${r.melt_tot}</td>
-      <td class="mono">${r.retail}</td>
-      <td class="mono">${r.cost}</td>
-      <td>${sc}</td>
-    </tr>`;
-  }).join("");
+  tbody.innerHTML=f.map(r=>{ const bc=r.cat==="Gold"?"bg":r.cat==="Silver"?"bs":"bpl"; const sc=r.status==="Received"?`<span class="badge bkeep">In hand</span>`:r.status==="Pending"?`<span class="badge bpend">Pending</span>`:r.status?`<span class="badge bkeep">${r.status}</span>`:""; return `<tr><td style="color:#555;font-size:11px">${r.num}</td><td>${r.desc}</td><td style="font-size:12px;color:#888">${r.brand}</td><td>${r.weight}</td><td>${r.qty}</td><td class="mono">${r.melt_ea}</td><td class="mono">${r.melt_tot}</td><td class="mono">${r.retail}</td><td class="mono">${r.cost}</td><td>${sc}</td></tr>`; }).join("");
 }
 
 async function loadNotes(){
   const tbody=document.getElementById("notes-body");
-  try{
-    // Notes cols: A:#, B:Desc/Serial, C:Series/FR#, D:Year, E:Denom, F:Cost, G:Grade, H:Status
-    const data=await gfetch("Notes","A5:I299");
-    const rows=data.filter(r=>r[1]&&r[1]!=="TOTALS"&&r[1]!=="Description / Serial / Notes");
-    if(!rows.length){tbody.innerHTML=`<tr><td colspan="8" class="loading">No notes found</td></tr>`;return;}
-    tbody.innerHTML=rows.map(r=>{
-      const st=(r[7]||"").trim();
-      const bc=st==="SOLD"?"bsold":st==="Grading"||st==="Hold/Grade"?"bgrade":st==="Keep"?"bkeep":st==="Sell"?"bs":"bkeep";
-      return `<tr>
-        <td style="color:#555;font-size:11px">${r[0]||""}</td>
-        <td>${r[1]||""}</td>
-        <td style="font-size:12px;color:#888">${r[2]||""}</td>
-        <td>${r[3]||""}</td>
-        <td class="mono">${r[4]||""}</td>
-        <td class="mono">${r[5]?("$"+pnum(r[5]).toFixed(2)):""}</td>
-        <td><span class="badge bpl">${r[6]||"—"}</span></td>
-        <td><span class="badge ${bc}">${st||"—"}</span></td>
-      </tr>`;
-    }).join("");
-  }catch(e){tbody.innerHTML=`<tr><td colspan="8" class="loading" style="color:#E24B4A">${e.message}</td></tr>`;}
+  try{ const data=await gfetch("Notes","A5:I299"); const rows=data.filter(r=>r[1]&&r[1]!=="TOTALS"&&r[1]!=="Description / Serial / Notes"); if(!rows.length){tbody.innerHTML=`<tr><td colspan="8" class="loading">No notes found</td></tr>`;return;} tbody.innerHTML=rows.map(r=>{ const st=(r[7]||"").trim(); const bc=st==="SOLD"?"bsold":st==="Grading"||st==="Hold/Grade"?"bgrade":st==="Keep"?"bkeep":st==="Sell"?"bs":"bkeep"; return `<tr><td style="color:#555;font-size:11px">${r[0]||""}</td><td>${r[1]||""}</td><td style="font-size:12px;color:#888">${r[2]||""}</td><td>${r[3]||""}</td><td class="mono">${r[4]||""}</td><td class="mono">${r[5]?("$"+pnum(r[5]).toFixed(2)):""}</td><td><span class="badge bpl">${r[6]||"—"}</span></td><td><span class="badge ${bc}">${st||"—"}</span></td></tr>`; }).join(""); }catch(e){tbody.innerHTML=`<tr><td colspan="8" class="loading" style="color:#E24B4A">${e.message}</td></tr>`;}
 }
 
 async function loadOrders(){
   const tbody=document.getElementById("orders-body");
-  try{
-    // Orders cols: A:#, B:Desc, C:Cat, D:Qty, E:Price, F:OrderDate, G:Seller, H:Arrival, I:Tracking, J:Status, K:Notes
-    const data=await gfetch("Orders","A5:K100");
-    const rows=data.filter(r=>r[1]&&r[1]!=="Description"&&r[1]!=="TOTALS");
-    if(!rows.length){tbody.innerHTML=`<tr><td colspan="11" class="loading">No orders found</td></tr>`;return;}
-    tbody.innerHTML=rows.map((r,i)=>{
-      const status=(r[9]||"Ordered").trim();
-      const bc=status==="Received"?"bsold":status==="Shipped"?"bgrade":"bpend";
-      return`<tr>
-        <td style="color:#555;font-size:11px">${r[0]||i+1}</td>
-        <td>${r[1]||""}</td>
-        <td><span class="badge ${r[2]==="Gold"?"bg":r[2]==="Silver"?"bs":r[2]==="Platinum"?"bpl":"bp"}">${r[2]||""}</span></td>
-        <td>${r[3]||"1"}</td>
-        <td class="mono">${r[4]?("$"+pnum(r[4]).toFixed(2)):""}</td>
-        <td style="font-size:12px">${r[5]||""}</td>
-        <td style="font-size:12px">${r[6]||""}</td>
-        <td style="font-size:12px">${r[7]||""}</td>
-        <td style="font-size:11px;color:#888">${r[8]||""}</td>
-        <td><span class="badge ${bc}">${status}</span></td>
-        <td><button class="btn btn-green" style="padding:4px 10px;font-size:12px;margin:0"
-          onclick="openReceive('${(r[1]||"").replace(/'/g,"\\'")}','${r[2]||"Silver"}','${r[3]||1}','${r[4]||""}','${r[6]||""}')">
-          Receive
-        </button></td>
-      </tr>`;
-    }).join("");
-  }catch(e){tbody.innerHTML=`<tr><td colspan="11" class="loading" style="color:#E24B4A">${e.message}</td></tr>`;}
+  try{ const data=await gfetch("Orders","A5:K100"); const rows=data.filter(r=>r[1]&&r[1]!=="Description"&&r[1]!=="TOTALS"); if(!rows.length){tbody.innerHTML=`<tr><td colspan="11" class="loading">No orders found</td></tr>`;return;} tbody.innerHTML=rows.map((r,i)=>{ const status=(r[9]||"Ordered").trim(); const bc=status==="Received"?"bsold":status==="Shipped"?"bgrade":"bpend"; return`<tr><td style="color:#555;font-size:11px">${r[0]||i+1}</td><td>${r[1]||""}</td><td><span class="badge ${r[2]==="Gold"?"bg":r[2]==="Silver"?"bs":r[2]==="Platinum"?"bpl":"bp"}">${r[2]||""}</span></td><td>${r[3]||"1"}</td><td class="mono">${r[4]?("$"+pnum(r[4]).toFixed(2)):""}</td><td style="font-size:12px">${r[5]||""}</td><td style="font-size:12px">${r[6]||""}</td><td style="font-size:12px">${r[7]||""}</td><td style="font-size:11px;color:#888">${r[8]||""}</td><td><span class="badge ${bc}">${status}</span></td><td><button class="btn btn-green" style="padding:4px 10px;font-size:12px;margin:0" onclick="openReceive('${(r[1]||"").replace(/'/g,"\\'")}','${r[2]||"Silver"}','${r[3]||1}','${r[4]||""}','${r[6]||""}')">Receive</button></td></tr>`; }).join(""); }catch(e){tbody.innerHTML=`<tr><td colspan="11" class="loading" style="color:#E24B4A">${e.message}</td></tr>`;}
 }
 
 function openReceive(desc,cat,qty,cost,seller){
@@ -510,10 +426,8 @@ function openReceive(desc,cat,qty,cost,seller){
   document.getElementById("rc-cost").value=cost;
   document.getElementById("rc-seller").value=seller;
   document.getElementById("rc-date").value=new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
-  // auto-select destination tab
   const tabMap={"Gold":"Gold","Silver":"Silver","Platinum":"Platinum","Paper Currency":"Notes","Notes":"Notes"};
-  const sel=document.getElementById("rc-tab");
-  sel.value=tabMap[cat]||"Silver";
+  const sel=document.getElementById("rc-tab"); sel.value=tabMap[cat]||"Silver";
   document.getElementById("rc-preview").style.display="none";
   document.getElementById("rc-copy-btn").style.display="none";
   document.getElementById("rc-msg").textContent="";
@@ -532,54 +446,19 @@ function buildReceiveRow(){
   const date=document.getElementById("rc-date").value.trim();
   const tab=document.getElementById("rc-tab").value;
   if(!desc){document.getElementById("rc-msg").textContent="Enter a description.";return;}
-  const metal=tab==="Notes"?"Paper":tab;
-  // metals row: #, Desc, Brand, Metal, Weight, Purity, Qty, OzTroy(blank-formula), MeltEa(blank), MeltTotal(blank), EstRetail(blank), Cost, Date, Seller, Status
   let row;
-  if(tab==="Notes"){
-    // notes row: #, Desc, Series/FR#, Year, Denom, Cost, Grade, Status
-    row=["(next#)",desc,"","","",cost.toFixed(2),"","Received"];
-  } else {
-    row=["(next#)",desc,brand,metal,weight,purity,qty,"","","","",cost.toFixed(2),date,seller,"Received"];
-  }
+  if(tab==="Notes"){ row=["(next#)",desc,"","","",cost.toFixed(2),"","Received"]; }
+  else { row=["(next#)",desc,brand,tab,weight,purity,qty,"","","","",cost.toFixed(2),date,seller,"Received"]; }
   rcRowTSV=row.join("\t");
-  const prev=document.getElementById("rc-preview");
-  prev.textContent=row.join(" | ");
-  prev.style.display="block";
+  const prev=document.getElementById("rc-preview"); prev.textContent=row.join(" | "); prev.style.display="block";
   document.getElementById("rc-copy-btn").style.display="inline-block";
-  const msg=document.getElementById("rc-msg");
-  msg.textContent=`Paste into your ${tab} tab → next empty row after row 5. Then delete or mark the order as Received in the Orders tab.`;
-  msg.style.color="#C9A84C";
+  const msg=document.getElementById("rc-msg"); msg.textContent=`Paste into your ${tab} tab → next empty row after row 5.`; msg.style.color="#C9A84C";
 }
-function copyReceiveRow(){
-  navigator.clipboard.writeText(rcRowTSV).then(()=>{
-    const b=document.getElementById("rc-copy-btn");b.textContent="Copied!";
-    setTimeout(()=>b.textContent="Copy to clipboard",2000);
-  }).catch(()=>alert("Copy failed — select the text above manually."));
-}
+function copyReceiveRow(){ navigator.clipboard.writeText(rcRowTSV).then(()=>{ const b=document.getElementById("rc-copy-btn");b.textContent="Copied!";setTimeout(()=>b.textContent="Copy to clipboard",2000); }).catch(()=>alert("Copy failed — select the text above manually.")); }
 
 async function loadSales(){
   const tbody=document.getElementById("sales-body");
-  try{
-    // Sales cols: A:Sale#, B:Date, C:Desc, D:Cat, E:Qty, F:Price, G:Cost, H:Fees, I:Shipping, J:Profit, K:Platform
-    const data=await gfetch("Sales Log","A5:K299");
-    const rows=data.filter(r=>r[0]&&!isNaN(parseFloat(r[0])));
-    if(!rows.length){tbody.innerHTML=`<tr><td colspan="10" class="loading">No sales logged yet</td></tr>`;return;}
-    tbody.innerHTML=rows.map(r=>{
-      const pl=pnum(r[9]);
-      return `<tr>
-        <td>${r[0]}</td>
-        <td style="font-size:12px">${r[1]||""}</td>
-        <td>${r[2]||""}</td>
-        <td><span class="badge ${r[3]==="Gold"?"bg":r[3]==="Silver"?"bs":"bp"}">${r[3]||""}</span></td>
-        <td class="mono">${fmt(pnum(r[5]))}</td>
-        <td class="mono">${fmt(pnum(r[6]))}</td>
-        <td class="mono">${fmt(pnum(r[7]))}</td>
-        <td class="mono">${fmt(pnum(r[8]))}</td>
-        <td class="mono ${pl>=0?"pl-pos":"pl-neg"}">${pl>=0?"+":"-"}${fmt(pl)}</td>
-        <td style="font-size:12px">${r[10]||""}</td>
-      </tr>`;
-    }).join("");
-  }catch(e){tbody.innerHTML=`<tr><td colspan="10" class="loading" style="color:#E24B4A">${e.message}</td></tr>`;}
+  try{ const data=await gfetch("Sales Log","A5:K299"); const rows=data.filter(r=>r[0]&&!isNaN(parseFloat(r[0]))); if(!rows.length){tbody.innerHTML=`<tr><td colspan="10" class="loading">No sales logged yet</td></tr>`;return;} tbody.innerHTML=rows.map(r=>{ const pl=pnum(r[9]); return `<tr><td>${r[0]}</td><td style="font-size:12px">${r[1]||""}</td><td>${r[2]||""}</td><td><span class="badge ${r[3]==="Gold"?"bg":r[3]==="Silver"?"bs":"bp"}">${r[3]||""}</span></td><td class="mono">${fmt(pnum(r[5]))}</td><td class="mono">${fmt(pnum(r[6]))}</td><td class="mono">${fmt(pnum(r[7]))}</td><td class="mono">${fmt(pnum(r[8]))}</td><td class="mono ${pl>=0?"pl-pos":"pl-neg"}">${pl>=0?"+":"-"}${fmt(pl)}</td><td style="font-size:12px">${r[10]||""}</td></tr>`; }).join(""); }catch(e){tbody.innerHTML=`<tr><td colspan="10" class="loading" style="color:#E24B4A">${e.message}</td></tr>`;}
 }
 
 let saleRowTSV="";
@@ -591,44 +470,20 @@ function buildSaleRow(){
   const ship=pnum(document.getElementById("lsh").value);
   if(!desc||!price){document.getElementById("sale-msg").textContent="Enter at least a description and sale price.";return;}
   const profit=price-cost-fees-ship;
-  const row=["(next#)",document.getElementById("ldt").value,desc,
-    document.getElementById("lm").value,1,price.toFixed(2),cost.toFixed(2),
-    fees.toFixed(2),ship.toFixed(2),profit.toFixed(2),document.getElementById("lpl").value];
+  const row=["(next#)",document.getElementById("ldt").value,desc,document.getElementById("lm").value,1,price.toFixed(2),cost.toFixed(2),fees.toFixed(2),ship.toFixed(2),profit.toFixed(2),document.getElementById("lpl").value];
   saleRowTSV=row.join("\t");
-  const prev=document.getElementById("sale-preview");
-  prev.textContent=row.join(" | ");
-  prev.style.display="block";
+  const prev=document.getElementById("sale-preview"); prev.textContent=row.join(" | "); prev.style.display="block";
   document.getElementById("copy-btn").style.display="inline-block";
-  const msg=document.getElementById("sale-msg");
-  msg.textContent="Est. profit: "+(profit>=0?"+":"-")+fmt(profit)+" — Copy this row and paste into Sales Log tab row 5+, then tell Claude to remove from inventory.";
-  msg.style.color=profit>=0?"#639922":"#E24B4A";
+  const msg=document.getElementById("sale-msg"); msg.textContent="Est. profit: "+(profit>=0?"+":"-")+fmt(profit); msg.style.color=profit>=0?"#639922":"#E24B4A";
 }
-function copySaleRow(){
-  navigator.clipboard.writeText(saleRowTSV).then(()=>{
-    const b=document.getElementById("copy-btn");b.textContent="Copied!";
-    setTimeout(()=>b.textContent="Copy to clipboard",2000);
-  }).catch(()=>alert("Copy failed — select the text above and copy manually."));
-}
+function copySaleRow(){ navigator.clipboard.writeText(saleRowTSV).then(()=>{ const b=document.getElementById("copy-btn");b.textContent="Copied!";setTimeout(()=>b.textContent="Copy to clipboard",2000); }).catch(()=>alert("Copy failed.")); }
 
 async function saveAndTest(){
   const key=document.getElementById("cfg-key").value.trim();
   const sid=document.getElementById("cfg-sid").value.trim();
-  if(key) saveCfg({key});
-  if(sid) saveCfg({sid});
-  const msg=document.getElementById("setup-msg");
-  msg.textContent="Testing...";
-  try{
-    const res=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid||getSid()}?key=${key||getKey()}&fields=properties.title,sheets.properties.title`);
-    const d=await res.json();
-    if(d.error) throw new Error(d.error.message);
-    msg.style.color="#639922";
-    msg.textContent="Connected: "+d.properties.title+" — Tabs: "+d.sheets.map(s=>s.properties.title).join(", ");
-    setConn("ok","Connected — LadzVault73");
-  }catch(e){
-    msg.style.color="#E24B4A";
-    msg.textContent="Error: "+e.message;
-    setConn("err","Connection failed");
-  }
+  if(key) saveCfg({key}); if(sid) saveCfg({sid});
+  const msg=document.getElementById("setup-msg"); msg.textContent="Testing...";
+  try{ const res=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid||getSid()}?key=${key||getKey()}&fields=properties.title,sheets.properties.title`); const d=await res.json(); if(d.error) throw new Error(d.error.message); msg.style.color="#639922"; msg.textContent="Connected: "+d.properties.title+" — Tabs: "+d.sheets.map(s=>s.properties.title).join(", "); setConn("ok","Connected — LadzVault73"); }catch(e){ msg.style.color="#E24B4A"; msg.textContent="Error: "+e.message; setConn("err","Connection failed"); }
 }
 function clearCfg(){localStorage.removeItem(LS);location.reload();}
 
@@ -637,7 +492,6 @@ function showTab(name,btn){
   document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
   document.getElementById("tab-"+name).classList.add("active");
   btn.classList.add("active");
-  if(name==="dashboard") loadDashboard();
   if(name==="inventory") loadAllInv();
   if(name==="notes") loadNotes();
   if(name==="orders") loadOrders();
@@ -645,8 +499,7 @@ function showTab(name,btn){
   if(name==="logsale") document.getElementById("ldt").value=new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
   if(name==="setup"){const c=getCfg();if(c.key)document.getElementById("cfg-key").value=c.key;if(c.sid)document.getElementById("cfg-sid").value=c.sid;}
 }
-
-loadDashboard();
 </script>
 </body>
 </html>
+
